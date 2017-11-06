@@ -62,24 +62,15 @@ contract Main {
         uint tripStatus;
     }
     
+    //We initialise admin as the owner in the constructor
+    //We add the admin details as well
     function Main() {
         owner = msg.sender;
          
         registry[msg.sender].mtd = 8;
         registry[msg.sender].entityName = "Admin"; 
-        
+
         registry[msg.sender].myMeds.push(1);
-        
-        ent.push(0xc318961De4Fa1C8b7dd7718DdCcDd096284C7Cfa);//manufacturer
-        ent.push(0x7BD0f74D4c32f660d7922280DbEE039cAbCBD239);//transporter
-        ent.push(0x79C7B270a140041eBE1215C3b7c7b10A4Dc8f453);//distributor
-         
-        registry[0xc318961De4Fa1C8b7dd7718DdCcDd096284C7Cfa].mtd=1;
-        registry[0xc318961De4Fa1C8b7dd7718DdCcDd096284C7Cfa].entityName = "Pfizer"; 
-        registry[0x7BD0f74D4c32f660d7922280DbEE039cAbCBD239].mtd=2;
-        registry[0x7BD0f74D4c32f660d7922280DbEE039cAbCBD239].entityName = "FedEx"; 
-        registry[0x79C7B270a140041eBE1215C3b7c7b10A4Dc8f453].mtd=3;
-        registry[0x79C7B270a140041eBE1215C3b7c7b10A4Dc8f453].entityName = "Jain Chemist";
     }
     
     // ADMIN FUNCTIONS
