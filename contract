@@ -1,0 +1,260 @@
+pragma solidity ^0.4.0;
+
+contract Main {
+    address owner;
+    
+    //To iterate through all entities
+    mapping (address => Entity) public registry;
+    
+    //To iterate through all medicines
+    mapping (uint => Medicine) public meds;
+    address[] ent;
+    
+    //To iterate through all trips
+    mapping (uint => Trip) public trips;
+    uint public tripIndex = 0;
+    
+    //m - manufacturer
+    uint m = 1;
+    // t - transporter
+    uint t = 2;
+    //d - distributor
+    uint d = 3;
+
+//This struct stores data about each entity
+    struct Entity{
+        uint mtd;
+        string entityName;
+        uint[] myTrips;
+        uint currentTrip;
+        uint[] myMeds;
+        uint active;
+    }
+
+//This struct stores medicine data
+    struct Medicine{
+        uint medicineIndex;
+        string medicineName;
+        uint maxTemp;
+        uint minTemp;
+    }
+
+//This struct stores data about medicine temperatures and location during transport    
+    struct Data{
+        uint temp;
+        string lat;
+        string lon;
+        uint timestamp;
+        uint success;
+    }
+
+//This struct defines all the entities in one transport of medicine
+//Each trip will have one manufacturer, transporter and distributor
+//It will link to one medicine (which is being transported)
+//It will have an array to store temperature and location data
+    struct Trip{
+        uint tripIndex;
+        address manufacturerAddr;
+        address transporterAddr;
+        address distributorAddr;
+        uint medicineIndex;
+        Data [] receipts;
+        uint tripStatus;
+    }
+    
+    function Main() {
+        owner = msg.sender;
+         
+        registry[msg.sender].mtd = 8;
+        registry[msg.sender].entityName = "Admin"; 
+        
+        registry[msg.sender].myMeds.push(1);
+        
+        ent.push(0xc318961De4Fa1C8b7dd7718DdCcDd096284C7Cfa);//manufacturer
+        ent.push(0x7BD0f74D4c32f660d7922280DbEE039cAbCBD239);//transporter
+        ent.push(0x79C7B270a140041eBE1215C3b7c7b10A4Dc8f453);//distributor
+         
+        registry[0xc318961De4Fa1C8b7dd7718DdCcDd096284C7Cfa].mtd=1;
+        registry[0xc318961De4Fa1C8b7dd7718DdCcDd096284C7Cfa].entityName = "Pfizer"; 
+        registry[0x7BD0f74D4c32f660d7922280DbEE039cAbCBD239].mtd=2;
+        registry[0x7BD0f74D4c32f660d7922280DbEE039cAbCBD239].entityName = "FedEx"; 
+        registry[0x79C7B270a140041eBE1215C3b7c7b10A4Dc8f453].mtd=3;
+        registry[0x79C7B270a140041eBE1215C3b7c7b10A4Dc8f453].entityName = "Jain Chemist";
+    }
+    
+    // ADMIN FUNCTIONS
+
+    //Allows admin to add an entity to contract
+    function addEntity(uint _mtd, address _entityAddr, string _entityName){
+       
+        require(msg.sender==owner);
+        registry[_entityAddr].mtd = _mtd;
+        registry[_entityAddr].entityName = _entityName;
+          
+        ent.push(_entityAddr);
+    }
+    
+    //Returns entity username
+    function getUsername() constant returns(string){
+        return registry[msg.sender].entityName;    
+    }
+    
+    //Returns number of entities
+    function entityLength() constant returns(uint){
+       return ent.length;     
+    }
+
+    //Returns Address of entity at particular index of ent array
+    function allEntity(uint _index) constant returns(address) {
+        require(msg.sender == owner);
+        return ent[_index];
+    }
+    
+    //Returns details of entity from registry array mapped using address
+    function viewEntity(address _entityAddress) constant returns (address,string, uint){
+        return (_entityAddress,registry[_entityAddress].entityName,registry[_entityAddress].mtd);
+    }
+  
+    
+    // MANUFACTURER FUNCTIONS   
+    
+    //Adds medicine details and stores medicine into "myMeds" array of a manufacturer
+    function addMedicine(uint _medicineIndex, string _medicineName, uint _maxTemp, uint _minTemp)
+    {
+    
+    require(registry[msg.sender].mtd==1);
+        
+        registry[msg.sender].myMeds.push(_medicineIndex);
+        meds[_medicineIndex] = Medicine({
+            medicineIndex: _medicineIndex,
+            medicineName: _medicineName,
+            maxTemp: _maxTemp,
+            minTemp: _minTemp
+        });  
+    }
+    
+    //Returns total number of medicines of a particular manufacturer
+    function medicineLength() constant returns(uint){
+        return registry[msg.sender].myMeds.length;
+    } 
+    
+    //Returns medicine at particular index of "myMeds" array of a manufacturer
+    function viewMedicine(uint _index) constant returns(uint, string, uint, uint){
+        require(registry[msg.sender].mtd==1);
+        return (meds[registry[msg.sender].myMeds[_index]].medicineIndex,
+        meds[registry[msg.sender].myMeds[_index]].medicineName,
+        meds[registry[msg.sender].myMeds[_index]].maxTemp,
+        meds[registry[msg.sender].myMeds[_index]].minTemp);
+    }
+  
+    //Returns transporters available on the system to transport medicines
+    function getTransporters(uint _index) constant returns(address, string){
+        require(registry[msg.sender].mtd==1 && registry[ent[_index]].mtd==2 && registry[ent[_index]].active!=1);
+        return(ent[_index], registry[ent[_index]].entityName);
+    }
+    
+    //Returns all distributors on the system
+    function getDistributor(uint _index) constant returns(address, string){
+        require(registry[msg.sender].mtd==1 && registry[ent[_index]].mtd==3);
+        return(ent[_index], registry[ent[_index]].entityName);
+    }
+    
+    //Creates an instance of the transport
+    //Stores all the trip details and adds trip to every entity's "myTrips" array.
+    function startTrip(address _transporterAddr, address _distributorAddr, uint _medicineIndex){
+     
+       require(registry[msg.sender].mtd==m && registry[_transporterAddr].mtd==t && registry[_distributorAddr].mtd==d && meds[_medicineIndex].medicineIndex==_medicineIndex);
+       trips[tripIndex].tripIndex = tripIndex;
+       trips[tripIndex].manufacturerAddr = msg.sender;
+       trips[tripIndex].transporterAddr = _transporterAddr;
+       trips[tripIndex].distributorAddr = _distributorAddr;
+       trips[tripIndex].medicineIndex = _medicineIndex;
+       trips[tripIndex].tripStatus = 0;
+       registry[msg.sender].myTrips.push(tripIndex);
+       registry[_transporterAddr].myTrips.push(tripIndex);
+       registry[_transporterAddr].active=1;
+       registry[_distributorAddr].myTrips.push(tripIndex);
+       registry[_transporterAddr].currentTrip = tripIndex;
+       tripIndex++;
+    }
+    
+    //Returns total number of "trips" of a particular entity
+    function lengthTrips() constant returns(uint){
+        return registry[msg.sender].myTrips.length;
+    } 
+    
+    //Returns details of the trip at a particular index of "myTrips" array of a particular entity
+    function displayTrips(uint _index) constant returns(string, string, string, string, uint, uint){
+        return ( registry[trips[registry[msg.sender].myTrips[_index]].manufacturerAddr].entityName,
+        registry[trips[registry[msg.sender].myTrips[_index]].transporterAddr].entityName,
+        registry[trips[registry[msg.sender].myTrips[_index]].distributorAddr].entityName,
+        meds[trips[registry[msg.sender].myTrips[_index]].medicineIndex].medicineName,
+        trips[registry[msg.sender].myTrips[_index]].tripIndex,
+        trips[registry[msg.sender].myTrips[_index]].tripStatus
+        
+        );
+    }
+    
+    
+    // TRANSPORTER FUNCTIONS
+    
+    //Sets location and temparature data and stores in "receipts" array of a trip
+    function sendData(uint _temp, string _lat, string _lon){
+        uint tempStatus=0; //0 success, 1 failure
+        if(registry[msg.sender].mtd==t){
+            if(_temp>meds[trips[registry[msg.sender].currentTrip].medicineIndex].maxTemp||_temp<meds[trips[registry[msg.sender].currentTrip].medicineIndex].minTemp){
+                tempStatus=1;
+            }
+            trips[registry[msg.sender].currentTrip].receipts.push(
+                Data({
+                    temp: _temp,
+                    lat: _lat,
+                    lon: _lon,
+                    timestamp: now,
+                    success: tempStatus
+                
+            })
+            );
+            
+        }
+    }
+    
+    
+  
+    // DISTRIBUTOR FUNCTIONS
+    
+    //Returns length of "receipts" array of a particular trip.
+    function lengthData(uint _tripIndex) constant returns(uint){
+        require(trips[_tripIndex].manufacturerAddr==msg.sender || trips[_tripIndex].distributorAddr==msg.sender);
+        return trips[_tripIndex].receipts.length;
+    }
+    
+    //Returns data at particular index of "receipts" array of a particular trip
+    function viewData(uint _tripIndex, uint _dataIndex) constant returns(uint, string, string, uint,uint){
+        require(trips[_tripIndex].manufacturerAddr==msg.sender || trips[_tripIndex].distributorAddr==msg.sender);
+        
+        return (trips[_tripIndex].receipts[_dataIndex].temp,
+        trips[_tripIndex].receipts[_dataIndex].lat,
+        trips[_tripIndex].receipts[_dataIndex].lon,
+        trips[_tripIndex].receipts[_dataIndex].timestamp, 
+        trips[_tripIndex].receipts[_dataIndex].success
+        );  
+    }
+    
+    //Sets whether distributor accepts or rejects delivery
+    function acceptTrip(uint _tripIndex, uint _tripStatus){
+        require(trips[_tripIndex].distributorAddr == msg.sender);
+        trips[registry[msg.sender].myTrips[_tripIndex]].tripStatus = _tripStatus;
+        registry[trips[_tripIndex].transporterAddr].active=0;
+    }
+    
+    //Returns whether user is a manufacturer/transporter/distributor
+    //manufacturer = 1
+    //transporter = 2
+    //distributor = 3
+    function determineMTD() constant returns (uint){
+        return registry[msg.sender].mtd;
+    }
+
+  
+}

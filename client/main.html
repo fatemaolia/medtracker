@@ -1,0 +1,573 @@
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Custom CSS -->
+    <link href="main.css" rel="stylesheet" type="text/css">
+     <!-- Custom Fonts -->
+     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+     <script src="http://code.jquery.com/jquery-1.4.min.js" type="text/javascript"></script>
+  <title>MedTracker</title>
+</head>
+
+<body>
+  {{> login}}
+</body>
+
+<!-- LOGIN -->
+<template name="login">
+  <!-- TOP NAVBAR -->
+    <nav class="navbar navbar-inverse">
+        <div class="container">
+          <center><p class="navbar-brand for-nav">Welcome {{username}}</p></center>
+          <ul class="nav navbar-nav navbar-right">
+            <li><button id="button-login" type="submit" style="background:none; color:#ffffff;" class="vertical-center"><a><i class="glyphicon glyphicon-user"></i></a></button></li>
+          </ul>
+        </div>
+    </nav>
+
+    <!-- SIDE NAVBAR -->
+    <div class="nav-side-menu">
+        <div class="brand">MedTracker</div>
+        <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
+    </div>
+
+
+    {{#if det0}}
+    {{> admin}}
+    <script type="text/javascript">
+       // SWITCH BETWEEN ENTITY VIEWS
+       $("#admin-menu-content a").click(function(e){
+          e.preventDefault();
+          $(".toggle").hide();
+          var toShow = $(this).attr('href');
+          $(toShow).show();
+        });
+    </script>
+    {{/if}}
+
+    {{#if det1}}
+    {{> manufacturer}}
+    <script type="text/javascript">
+       // SWITCH BETWEEN ENTITY VIEWS
+      $("#manufacturer-menu-content a").click(function(e){
+        e.preventDefault();
+        $(".toggle").hide();
+        var toShow = $(this).attr('href');
+        $(toShow).show();
+      });
+    </script>
+    {{/if}}
+
+    {{#if det2}}
+    {{> transporter}}
+    {{/if}}
+
+    {{#if det3}}
+    {{> distributor}}
+    <script type="text/javascript">
+       // SWITCH BETWEEN ENTITY VIEWS
+       $("#distributor-menu-content a").click(function(e){
+            e.preventDefault();
+            $(".toggle").hide();
+            var toShow = $(this).attr('href');
+            $(toShow).show();
+            });
+    </script>
+    {{/if}}
+</template>
+
+<!--- ADMIN -->
+<template name="admin">
+
+  <!-- SIDE NAVBAR -->
+    <div class="nav-side-menu">
+        <div class="brand">MedTracker</div>
+        <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
+
+            <div class="menu-list">
+
+                <ul id="admin-menu-content" class="menu-content collapse out">
+                  <li>
+                    <a href="#addEntities">
+                      <i class="fa fa-dashboard fa-lg"></i> Add Entity
+                    </a>
+                  </li>
+                  <li>
+                     <a href= "#viewEntities" id="view-entity">
+                      <i class="fa fa-user fa-lg"></i> View Entities
+                    </a>
+                  </li>
+              </ul>
+         </div>
+    </div>
+
+    <!-- ADD ENTITIES -->
+    <div id="addEntities" class="container toggle">
+      <div class="row">
+        <div class="col-md-12"  style="padding-left:350px">
+
+                <form role="form" method="get" class="entity-entry" style="align:center">
+                    <div class="form-group form-group-lg">
+                        <label><h4>Entity Type</h4></label>
+                          <select name="mtd" class="form-control">
+                            <option value="1">Manufacturer</option>
+                            <option value="2">Transporter</option>
+                            <option value="3">Distributor</option>
+                          </select>
+                     </div>
+                     <div class="form-group form-group-lg">
+                        <label><h4>Entity Address</h4></label>
+                        <input name="entityAddr" type="text" class="form-control" required>
+                    </div>
+                     <div class="form-group form-group-lg">
+                        <label><h4>Entity Name</h4></label>
+                        <input name="entityName" type="text" class="form-control" required>
+                    </div>
+                    <br>
+                    <button name="submit-entity-entry" type="submit" class="btn btn-primary btn-block btn-lg">Add Entity</button>
+                </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW ENTITIES -->
+    <div id="viewEntities" class="container toggle" style="display:none">
+        <div class="col-md-12" style="padding-left:350px">
+          <br><br>
+          <table class="responstable">
+            <thead class="thead-default">
+              <tr>
+                <th>Entity Address</th>
+                <th>Entity Type </th>
+                <th>Entity Name</th>
+                <!-- <th>Remove</th> -->
+              </tr>
+            </thead>
+            {{#each all_list}}
+            <tbody>
+              <!-- here we'll have to use the for loop to fill the table -->
+              <tr>
+                <td><center>{{address}}</center></td>
+                <td><center>{{mtd}}</center></td>
+                <td><center>{{name}}</center></td>
+                <!-- <td><center><button class="btn btn-danger remove-button" id="delete-entity"><i class="glyphicon glyphicon-remove"></i></button></center></td> -->
+              </tr>
+            </tbody>
+            {{/each}}
+          </table>
+        </div>
+    </div>
+</template>
+
+<!--- MANUFACTURER -->
+<template name="manufacturer">
+  <!-- SIDE NAVBAR -->
+    <div class="nav-side-menu">
+        <div class="brand">MedTracker</div>
+        <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
+
+            <div class="menu-list">
+
+                <ul id="manufacturer-menu-content" class="menu-content collapse out">
+                    <li data-toggle="collapse" data-target="#med-options" style="padding-left:30px">
+                      <a href="#addMedicines"><i class="fa fa-dashboard fa-lg"></i>Medicine</a>
+                    </li>
+                    <ul class="sub-menu collapse" id="med-options">
+                        <li class="active"><a href="#addMedicines">Add Medicines</a></li>
+                        <li class="active"><a href="#viewMedicines" id="view-medicines">View Medicines</a></li>
+                    </ul>
+
+                    <li data-toggle="collapse" data-target="#trip-options" style="padding-left:30px">
+                      <a href="#addTrips"><i class="fa fa-dashboard fa-lg"></i>Deliveries</a>
+                    </li>
+                    <ul class="sub-menu collapse" id="trip-options">
+                        <li class="active"><a href="#addTrips" id="add-trips">Add Delivery</a></li>
+                        <li class="active"><a href="#viewManTrips" id="view-trip">View Deliveries</a></li>
+                    </ul>
+                </ul>
+         </div>
+    </div>
+
+  <!-- ADD MEDICINES -->
+    <div id="addMedicines" class="container toggle">
+      <div class="row">
+        <div class="col-md-12"  style="padding-left:350px">
+
+                <form role="form" method="post" class="medicine-entry" style="align:center">
+                     <div class="form-group form-group-lg">
+                        <label><h4>Serial No</h4></label>
+                        <input name="medicineIndex" type="text" class="form-control" autofocus required>
+                    </div>
+                     <div class="form-group form-group-lg">
+                        <label><h4>Medicine Name</h4></label>
+                        <input name="medicineName" type="text" class="form-control" required>
+                    </div>
+                     <div class="form-group form-group-lg">
+                        <label><h4>Max Temprature (°C)</h4></label>
+                        <input name="maxTemp" type="number" class="form-control" required>
+                    </div>
+                     <div class="form-group form-group-lg">
+                        <label><h4>Min Temprature (°C)</h4></label>
+                        <input name="minTemp" type="number" class="form-control" required>
+                    </div>
+                    <br>
+                    <button value="Medicine Entry" name="submit-medicine-entry" type="submit" class="btn btn-primary btn-block btn-lg">Add Medicine</button>
+                </form>
+
+        </div>
+      </div>
+    </div>
+
+  <!-- VIEW MEDICINES -->
+    <div id="viewMedicines" class="container toggle" style="display:none">
+        <div class="col-md-12" style="padding-left:350px">
+          <br><br>
+          <table class="responstable">
+            <thead class="thead-default">
+              <tr>
+                <th>Serial No</th>
+                <th>Medicine Name</th>
+                <th>Max Temp</th>
+                <th>Min Temp</th>
+                <!-- <th>Remove</th> -->
+              </tr>
+            </thead>
+            {{#each all_meds}}
+            <tbody>
+              <tr class="info">
+                <td><center>{{index}}</center></td>
+                <td><center>{{name}}</center></td>
+                <td><center>{{maxTemp}}</center></td>
+                <td><center>{{minTemp}}</center></td>
+                <!-- <td><button id="{{index}}" class="btn btn-danger remove-button"><i class="glyphicon glyphicon-remove"></i></button></td> -->
+              </tr>
+            </tbody>
+            {{/each}}
+          </table>
+        </div>
+      </div>
+
+  <!-- ADD TRIPS -->
+    <div id="addTrips" class="container toggle" style="display:none">
+      <div class="row">
+        <div class="col-md-12"  style="padding-left:350px">
+          <form role="form" method="post" class="start-trip" style="align:center">
+            <div class="form-group form-group-lg">
+                <label><h4>Transporter Address</h4></label>
+                <select name="transporterAddr" class="form-control">
+                    {{#each all_transporters}}
+                    <option value="{{address}}">{{name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            <div class="form-group form-group-lg">
+                <label><h4>Distributor Address</h4></label>
+                <select name="distributorAddr" class="form-control">
+                    {{#each all_distributors}}
+                    <option value="{{address}}">{{name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            <div class="form-group form-group-lg">
+                <label><h4>Medicine Name</h4></label>
+                <select name="medicineIndex" class="form-control">
+                    {{#each all_meds}}
+                    <option value="{{index}}">{{name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+                <br>
+            <button type="submit" value="Start Trip" name="submit-trip-entry" class="btn btn-primary btn-block btn-lg">Start Trip</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  <!-- VIEW TRIPS -->
+    <div id="viewManTrips" class="container toggle" style="display:none">
+      <div class="col-md-12" style="padding-left:350px">
+        <br><br>
+        <table class="responstable">
+          <thead class="thead-default">
+            <tr>
+              <th>Transporter</th>
+              <th>Distributor</th>
+              <th>Medicine Name</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          {{#each all_trips}}
+          <tbody>
+            <tr>
+              <td><center>{{ta}}</center></td>
+              <td><center>{{da}}</center></td>
+              <td><center>{{medi}}</center></td>
+              <td>{{status}}</td>
+            </tr>
+          </tbody>
+          {{/each}}
+        </table>
+      </div>
+    </div>
+</template>
+
+
+<!--TRANSPORTER-->
+<template name="transporter">
+  <div id="addEntities" class="container toggle">
+    <div class="row">
+      <div class="col-md-12"  style="padding-left:350px">
+         <form method="post" class="send-data">
+
+            <div class="form-group form-group-lg">
+              <label><h4>Temperature</h4></label>
+              <input type="number" name="temp" class="form-control" autofocus required><br>
+            </div>
+
+            <div class="form-group form-group-lg">
+              <label><h4>Latitude</h4></label>
+              <input type="number" class="form-control" name="lat" required><br>
+            </div>
+
+            <div class="form-group form-group-lg">
+              <label><h4>Longitude</h4></label>
+              <input ttype="number" class="form-control" name="lon" required><br>
+            </div>
+
+            <div class="form-group form-group-lg">
+              <input type="submit" value="Send Data" name="submit-trip-entry" class="btn btn-primary btn-block btn-lg"><br>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+</template>
+
+<!-- DISTRIBUTOR -->
+<template name="distributor">
+
+  <!-- SIDE NAVBAR -->
+    <div class="nav-side-menu">
+        <div class="brand">MedTracker</div>
+        <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
+
+            <div class="menu-list">
+
+                <ul id="distributor-menu-content" class="menu-content collapse out">
+                  <li>
+                    <a href="#viewDistTrips" id="view-trip">
+                      <i class="fa fa-dashboard fa-lg"></i>Current Deliveries
+                    </a>
+                  </li>
+                  <li>
+                    <a id="view-all" href="#allDeliveries">
+                      <i class="fa fa-dashboard fa-lg"></i>Delivery History
+                    </a>
+                  </li>
+                  <li>
+                    <a id="view-accepts" href="#acceptedDeliveries">
+                      <i class="fa fa-dashboard fa-lg"></i>Accepted Deliveries
+                    </a>
+                  </li>
+                  <li>
+                    <a id="view-rejects" href="#rejectedDeliveries">
+                      <i class="fa fa-dashboard fa-lg"></i>Rejected Deliveries
+                    </a>
+                  </li>
+              </ul>
+         </div>
+    </div>
+
+  <!-- CURRENT TRIPS -->
+  <div id="viewDistTrips" class="container toggle">
+    <div class="col-md-12" style="padding-left:350px">
+      <br><br>
+      <table id="trips" class="responstable">
+        <thead class="thead-default">
+          <tr>
+            <th>Manufacturer</th>
+            <th>Transporter</th>
+            <th>Medicine Name</th>
+            <th>Status</th>
+            <th>More</th>
+          </tr>
+        </thead>
+        {{#each all_list}}
+        <tbody>
+          <tr class="info">
+            <td><center>{{ma}}</center></td>
+            <td><center>{{ta}}</center></td>
+            <td><center>{{medi}}</center></td>
+            <td><center>{{status}}</center></td>
+            <td><center><button id="{{index}}" class="btn btn-primary remove-button view-data" data-toggle="modal" data-target="#myModal">View Data</button></center></td>
+          </tr>
+        </tbody>
+        {{/each}}
+      </table>
+    </div>
+  </div>
+
+  <!-- SINGLE TRIP DATA -->
+  <div id="myModal" class="modal fade autoModal" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Temperature Values</h4>
+        </div>
+        <div class="modal-body">
+
+          <table class="responstable">
+            <thead class="thead-default">
+              <tr>
+                <th>Temperature</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            {{#each trip_data}}
+            <tbody>
+              <!-- over here I'm checking, if it is wrong then the if statement should change the row to red
+                    THIS WORKS!!
+                    I've tried it by hardcoding the return values
+                    so only the returning values part is wrong-->
+              {{#if equals danger "1"}}
+              <tr style="background-color: #F2DEDE;">
+                <td><center>{{temp}}</center></td>
+                <td><center>{{lat}}</center></td>
+                <td><center>{{lon}}</center></td>
+                <td><center>{{timestamp}}</center></td>
+              </tr>
+              {{else}}
+              <tr class="info">
+                <td><center>{{temp}}</center></td>
+                <td><center>{{lat}}</center></td>
+                <td><center>{{lon}}</center></td>
+                <td><center>{{timestamp}}</center></td>
+              </tr>
+              {{/if}}
+            </tbody>
+            {{/each}}
+            </table>
+
+        </div>
+        <div class="modal-footer" id={{tripVar}} value={{tripVar}}>
+
+            <button type="button" name="acceptBtn" class="btn btn-success accept-medicine" value="{{tripVar}}" data-dismiss="modal"><i class="glyphicon glyphicon-ok"></i></button>
+            <button type="button" name="rejectBtn" class="btn btn-danger reject-medicine" value="{{tripVar}}" data-dismiss="modal"><i class="glyphicon glyphicon-remove"></i></button>
+
+        </div>
+      </div>
+
+    </div>
+ </div>
+
+  <!--- ALL DELIVERIES -->
+  <div id="allDeliveries" class="container toggle" style="display:none">
+     <div class="col-md-12" style="padding-left:350px">
+       <br><br>
+       <table id="trips" class="responstable">
+         <thead class="thead-default">
+           <tr>
+             <th>Manufacturer</th>
+             <th>Transporter</th>
+             <th>Distributor</th>
+             <th>Medicine Name</th>
+             <th>Status</th>
+           </tr>
+         </thead>
+         {{#each all_list}}
+          {{#if equals color "0"}}
+             <tbody>
+               <tr class="info">
+                 <td><center>{{ma}}</center></td>
+                 <td><center>{{ta}}</center></td>
+                 <td><center>{{da}}</center></td>
+                 <td><center>{{medi}}</center></td>
+                 <td><center>{{status}}</center></td>
+              </tr>
+             </tbody>
+          {{else}}
+            {{#if equals color "1"}}
+            <tbody>
+              <tr style="background-color: #DFF0D8;">
+                <td><center>{{ma}}</center></td>
+                <td><center>{{ta}}</center></td>
+                <td><center>{{da}}</center></td>
+                <td><center>{{medi}}</center></td>
+                <td><center>{{status}}</center></td>
+             </tr>
+            </tbody>
+            {{else}}
+            <tbody>
+              <tr style="background-color: #F2DEDE;">
+                <td><center>{{ma}}</center></td>
+                <td><center>{{ta}}</center></td>
+                <td><center>{{da}}</center></td>
+                <td><center>{{medi}}</center></td>
+                <td><center>{{status}}</center></td>
+             </tr>
+            </tbody>
+            {{/if}}
+          {{/if}}
+         {{/each}}
+       </table>
+     </div>
+   </div>
+
+  <!-- ACCEPTED DELIVERIES -->
+  <div id="acceptedDeliveries" class="container toggle" style="display:none">
+      <div class="col-md-12" style="padding-left:350px">
+        <br><br>
+        <table id="trips" class="responstable">
+          <thead class="thead-default">
+            <tr>
+              <th>Manufacturer</th>
+              <th>Transporter</th>
+              <th>Medicine Name</th>
+            </tr>
+          </thead>
+          {{#each all_list}}
+          <tbody>
+            <!-- here we'll have to use the for loop to fill the table -->
+            <tr style="background-color: #DFF0D8;">
+              <td><center>{{ma}}</center></td>
+              <td><center>{{ta}}</center></td>
+              <td><center>{{medi}}</center></td>
+            </tr>
+          </tbody>
+          {{/each}}
+        </table>
+      </div>
+    </div>
+
+  <!-- REJECTED DELIVERIES -->
+  <div id="rejectedDeliveries" class="container toggle" style="display:none">
+      <div class="col-md-12" style="padding-left:350px">
+        <br><br>
+        <table id="trips" class="responstable">
+          <thead class="thead-default">
+            <tr>
+              <th>Manufacturer</th>
+              <th>Transporter</th>
+              <th>Medicine Name</th>
+            </tr>
+          </thead>
+          {{#each all_list}}
+          <tbody>
+            <!-- here we'll have to use the for loop to fill the table -->
+            <tr style="background-color: #F2DEDE;">
+              <td><center>{{ma}}</center></td>
+              <td><center>{{ta}}</center></td>
+              <td><center>{{medi}}</center></td>
+            </tr>
+          </tbody>
+          {{/each}}
+        </table>
+      </div>
+    </div>
+</template>
